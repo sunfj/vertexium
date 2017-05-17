@@ -1,14 +1,20 @@
 language: java
-script: mvn test -P$TEST_EXECUTION_PROFILE
-jdk:
-  - oraclejdk8
-env:
-  - TEST_EXECUTION_PROFILE=test
-  - TEST_EXECUTION_PROFILE=accumulo-test
-  - TEST_EXECUTION_PROFILE=blueprints-test
-  - TEST_EXECUTION_PROFILE=cypher-test
-  - TEST_EXECUTION_PROFILE=nolog,elasticsearch-test
-  - TEST_EXECUTION_PROFILE=multimodule-test
+jobs:
+  include:
+    - jdk: oraclejdk8
+      script: mvn test -Ptest
+    - jdk: oraclejdk8
+      script: mvn test -Pblueprints-test
+    - jdk: oraclejdk8
+      script: mvn test -Pcypher-test
+    - jdk: oraclejdk8
+      script: mvn test -Pnolog,elasticsearch-test
+    - stage: accumulo
+      jdk: oraclejdk8
+      script: mvn test -Paccumulo-test
+    - stage: multimodule
+      jdk: oraclejdk8
+      script: mvn test -Pmultimodule-test
 branches:
   only:
     - master
