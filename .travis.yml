@@ -7,13 +7,16 @@ env:
   - TEST_EXECUTION_PROFILE=accumulo-test
   - TEST_EXECUTION_PROFILE=blueprints-test
   - TEST_EXECUTION_PROFILE=cypher-test
-  - TEST_EXECUTION_PROFILE=elasticsearch-test
+  - TEST_EXECUTION_PROFILE=nolog,elasticsearch-test
   - TEST_EXECUTION_PROFILE=multimodule-test
 branches:
   only:
     - master
     - 2.5.x
     - refactor-blueprints-testing
+cache:
+  directories:
+    - $HOME/.m2/repository
 addons:
   apt:
     packages:
