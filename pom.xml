@@ -463,7 +463,27 @@
                         <configuration>
                             <skipTests>false</skipTests>
                             <excludes>
-                                <exclude>%regex[.*(multimodule|cypher|accumulo|elasticsearch).*]</exclude>
+                                <exclude>%regex[.*(multimodule|cypher|accumulo|elasticsearch|blueprints).*]</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>blueprints-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <includes>
+                                <include>%regex[.*(blueprints).*Test.*]</include>
+                            </includes>
+                            <excludes>
+                                <exclude>%regex[.*(multimodule|cypher|elasticsearch).*]</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -483,7 +503,7 @@
                                 <include>%regex[.*(accumulo).*Test.*]</include>
                             </includes>
                             <excludes>
-                                <exclude>%regex[.*(multimodule|cypher|elasticsearch).*]</exclude>
+                                <exclude>%regex[.*(multimodule|cypher|elasticsearch|blueprints).*]</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -503,7 +523,7 @@
                                 <include>%regex[.*(cypher).*Test.*]</include>
                             </includes>
                             <excludes>
-                                <exclude>%regex[.*(multimodule|elasticsearch|accumulo).*]</exclude>
+                                <exclude>%regex[.*(multimodule|elasticsearch|accumulo|blueprints).*]</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -523,7 +543,7 @@
                                 <include>%regex[.*(elasticsearch).*Test.*]</include>
                             </includes>
                             <excludes>
-                                <exclude>%regex[.*(multimodule|cypher|accumulo).*]</exclude>
+                                <exclude>%regex[.*(multimodule|cypher|accumulo|blueprints).*]</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
@@ -543,7 +563,7 @@
                                 <include>%regex[.*(multimodule).*Test.*]</include>
                             </includes>
                             <excludes>
-                                <exclude>%regex[.*(elasticsearch|cypher|accumulo).*]</exclude>
+                                <exclude>%regex[.*(elasticsearch|cypher|accumulo|blueprints).*]</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
