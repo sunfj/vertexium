@@ -1,3 +1,10 @@
+# v4.1.0
+* Added: Edge query support for in and out vertex ids
+* Changed: If fetch hints were not provided throw an exception instead of returning null
+* Changed: Elasticsearch to use BulkProcessor 
+* Changed: Calling hasId multiple times on the same Query object will result in the intersection of the provided lists. Previously, the resulting list was a union of all provided inputs. This behavior is more consistent with the `AND` behavior of the other query methods.
+* Fixed: Updating metadata when metadata was not fetched in fetch hints
+
 # v4.0.0
 * Changed: FetchHints to support more filtering
 * Changed: Throw errors when calling methods without the proper fetch hints
@@ -9,6 +16,10 @@
 
 # v3.2.3
 * Fixed: Not adding all of the geoshape fields to index for existing elements
+* Fixed: Expand SPVs when running in memory query strings
+* Fixed: Fix query search using different authorizations query string
+* Fixed: Fix indexing of geolocation properties
+* Fixed: notification to Elasticsearch when properties are added 
 
 # v3.2.2
 * Fixed: Improved support for multithreaded clients with InMemoryGraph

@@ -3,8 +3,6 @@ package org.vertexium.accumulo;
 import org.vertexium.*;
 import org.vertexium.property.MutableProperty;
 import org.vertexium.property.StreamingPropertyValueRef;
-import org.vertexium.util.VertexiumLogger;
-import org.vertexium.util.VertexiumLoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class LazyMutableProperty extends MutableProperty {
-    private static final VertexiumLogger LOGGER = VertexiumLoggerFactory.getLogger(LazyMutableProperty.class);
     private final AccumuloGraph graph;
     private final VertexiumSerializer vertexiumSerializer;
     private final String propertyKey;
@@ -90,8 +87,10 @@ public class LazyMutableProperty extends MutableProperty {
         } else {
             Collection<Metadata.Entry> entries = new ArrayList<>(property.getMetadata().entrySet());
             this.metadata = null;
-            for (Metadata.Entry metadataEntry : entries) {
-                getMetadata().add(metadataEntry.getKey(), metadataEntry.getValue(), metadataEntry.getVisibility());
+            if (getFetchHints().isIncludePropertyAndMetadata(propertyName)) {
+                for (Metadata.Entry metadataEntry : entries) {
+                    getMetadata().add(metadataEntry.getKey(), metadataEntry.getValue(), metadataEntry.getVisibility());
+                }
             }
         }
     }
@@ -129,8 +128,7 @@ public class LazyMutableProperty extends MutableProperty {
     @Override
     public Metadata getMetadata() {
         if (!fetchHints.isIncludePropertyMetadata()) {
-            LOGGER.warn("calling getMetadata without specifying fetch hints to get metadata");
-            return null;
+            throw new VertexiumMissingFetchHintException(fetchHints, "includePropertyMetadata");
         }
         if (cachedMetadata == null) {
             if (metadata == null) {

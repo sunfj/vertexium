@@ -15,17 +15,13 @@ import org.vertexium.query.ExtendedDataQueryableIterable;
 import org.vertexium.query.QueryableIterable;
 import org.vertexium.search.IndexHint;
 import org.vertexium.util.PropertyCollection;
-import org.vertexium.util.VertexiumLogger;
-import org.vertexium.util.VertexiumLoggerFactory;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 public abstract class AccumuloElement extends ElementBase implements Serializable, HasTimestamp {
-    private static final VertexiumLogger LOGGER = VertexiumLoggerFactory.getLogger(AccumuloElement.class);
     private static final long serialVersionUID = 1L;
     public static final Text CF_PROPERTY = ElementIterator.CF_PROPERTY;
     public static final Text CF_PROPERTY_METADATA = ElementIterator.CF_PROPERTY_METADATA;
@@ -49,7 +45,7 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
     private Visibility visibility;
     private final long timestamp;
     private final FetchHints fetchHints;
-    private Set<Visibility> hiddenVisibilities = new HashSet<>();
+    private final Set<Visibility> hiddenVisibilities;
 
     private final PropertyCollection properties;
     private final ImmutableSet<String> extendedDataTableNames;
@@ -78,11 +74,14 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
         this.properties = new PropertyCollection();
         this.extendedDataTableNames = extendedDataTableNames;
         this.authorizations = authorizations;
+
+        ImmutableSet.Builder<Visibility> hiddenVisibilityBuilder = new ImmutableSet.Builder<>();
         if (hiddenVisibilities != null) {
             for (Visibility v : hiddenVisibilities) {
-                this.hiddenVisibilities.add(v);
+                hiddenVisibilityBuilder.add(v);
             }
         }
+        this.hiddenVisibilities = hiddenVisibilityBuilder.build();
         updatePropertiesInternal(properties, propertyDeleteMutations, propertySoftDeleteMutations);
     }
 
@@ -193,6 +192,10 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
             return getIdProperty();
         } else if (Edge.LABEL_PROPERTY_NAME.equals(name) && this instanceof Edge) {
             return getEdgeLabelProperty();
+        } else if (Edge.OUT_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getOutVertexIdProperty();
+        } else if (Edge.IN_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getInVertexIdProperty();
         }
         Iterator<Property> propertiesWithName = getProperties(name).iterator();
         if (propertiesWithName.hasNext()) {
@@ -207,6 +210,10 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
             return getIdProperty();
         } else if (Edge.LABEL_PROPERTY_NAME.equals(name) && this instanceof Edge) {
             return getEdgeLabelProperty();
+        } else if (Edge.OUT_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getOutVertexIdProperty();
+        } else if (Edge.IN_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getInVertexIdProperty();
         }
         getFetchHints().assertPropertyIncluded(name);
         Property property = this.properties.getProperty(name, index);
@@ -222,6 +229,10 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
             return getIdProperty();
         } else if (Edge.LABEL_PROPERTY_NAME.equals(name) && this instanceof Edge) {
             return getEdgeLabelProperty();
+        } else if (Edge.OUT_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getOutVertexIdProperty();
+        } else if (Edge.IN_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge) {
+            return getInVertexIdProperty();
         }
         Property property = this.properties.getProperty(key, name, index);
         if (property == null) {
@@ -252,8 +263,7 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
     @Override
     public Iterable<Property> getProperties() {
         if (!getFetchHints().isIncludeProperties()) {
-            LOGGER.warn("calling getProperties without specifying fetch hints to get properties");
-            return null;
+            throw new VertexiumMissingFetchHintException(getFetchHints(), "includeProperties");
         }
         return this.properties.getProperties();
     }
@@ -268,7 +278,10 @@ public abstract class AccumuloElement extends ElementBase implements Serializabl
 
     @Override
     public Iterable<Property> getProperties(final String key, final String name) {
-        if (ID_PROPERTY_NAME.equals(name) || (Edge.LABEL_PROPERTY_NAME.equals(name) && this instanceof Edge)) {
+        if (ID_PROPERTY_NAME.equals(name)
+                || (Edge.LABEL_PROPERTY_NAME.equals(name) && this instanceof Edge)
+                || (Edge.OUT_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge)
+                || (Edge.IN_VERTEX_ID_PROPERTY_NAME.equals(name) && this instanceof Edge)) {
             return getProperties(name);
         }
         return this.properties.getProperties(key, name);
